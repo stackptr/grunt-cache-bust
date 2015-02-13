@@ -79,7 +79,9 @@ module.exports = function(grunt) {
 
     /** @this Object An elem on which attr() may be called for src or href. */
     var checkIfElemSrcValidFile = function() {
-        return checkIfValidFile(this.attr('src')) || checkIfValidFile(this.attr('href'));
+        return checkIfValidFile(this.attr('src')) || 
+               checkIfValidFile(this.attr('xlink:href') ? this.attr('xlink:href').split('#')[0] : '') || 
+               checkIfValidFile(this.attr('href'));
     };
 
     var findStaticAssets = function(data, filters, isCSS) {
@@ -248,7 +250,9 @@ module.exports = function(grunt) {
                             }
 
                             if (!grunt.file.exists(filename)) {
-                                grunt.log.warn('Static asset "' + filename + '" skipped because it wasn\'t found.');
+                                if(!checkIfRemote(filename)) {
+                                    grunt.log.warn('Static asset "' + filename + '" skipped because it wasn\'t found.');
+                                }
                                 return false;
                             }
 
@@ -268,7 +272,9 @@ module.exports = function(grunt) {
                         }
                     } else {
                         if (!grunt.file.exists(filename)) {
-                            grunt.log.warn('Static asset "' + filename + '" skipped because it wasn\'t found.');
+                            if(!checkIfRemote(filename)) {
+                                grunt.log.warn('Static asset "' + filename + '" skipped because it wasn\'t found.');
+                            }
                             return false;
                         }
                         newFilename = reference.split('?')[0] + '?' + generateHash(grunt.file.read(filename));
